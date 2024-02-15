@@ -1,23 +1,15 @@
-// app.js
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-// Middleware and routes will go here
-// app.js
-const postRoutes = require('./routes/postRoutes');
-// app.js
-const userRoutes = require('./routes/userRoutes');
-const blogRoutes = require('./routes/blogRoutes');
-
+// Middleware
 app.use(express.json());
-app.use('/api', userRoutes);
-app.use('/api', blogRoutes);
+app.use(express.urlencoded({ extended: true }));
 
-app.use(express.json());
-app.use('/api', postRoutes);
+// Routes
+app.use('/api', require('./routes/postRoutes'));
 
-
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

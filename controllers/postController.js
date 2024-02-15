@@ -1,17 +1,51 @@
-// controllers/postController.js
-const { getAllPosts, createPost } = require('../models/post');
+const Post = require('../models/post');
 
-const getAllPostsController = async (req, res) => {
-    const posts = await getAllPosts();
-    res.json(posts);
+const getAllPosts = (req, res) => {
+  const posts = Post.getAllPosts();
+  res.json(posts);
 };
 
-const createPostController = async (req, res) => {
-    const newPost = req.body;
-    await createPost(newPost);
-    res.status(201).json({ message: 'Post created successfully' });
+const getPostById = (req, res) => {
+  const postId = req.params.id;
+  const post = Post.getPostById(postId);
+  if (!post) {
+    return res.status(404).json({ message: 'Post not found' });
+  }
+  res.json(post);
 };
 
-// Implement other CRUD functions as needed
+const createPost = (req, res) => {
+  const { title, content } = req.body;
+  const newPost = {
+    id: Date.now().toString(),
+    title,
+    content
+  };
+  Post.createPost(newPost);
+  res.status(201).json({ message: 'Post created successfully', post: newPost });
+};
 
-module.exports = { getAllPostsController, createPostController };
+const updatePost = (req, res) => {
+  const postId = req.params.id;
+  const updatedPost = req.body;
+  const isUpdated = Post.updatePost(postId, updatedPost);
+  if (isUpdated) {
+    res.json({ message: 'Post updated successfully' });
+  } else {
+    res.status(404).json({ message: 'Post not found' });
+  }
+};
+
+const deletePost = (req, res) => {
+  const postId = req.params.id;
+  Post.deletePost(postId);
+  res.json({ message: 'Post deleted successfully' });
+};
+
+module.exports = {
+  getAllPosts,
+  getPostById,
+  createPost,
+  updatePost,
+  deletePost
+};

@@ -1,23 +1,48 @@
-// models/post.js
-const fs = require('fs/promises');
+const fs = require('fs');
+const path = require('path');
+const postsFilePath = path.resolve(__dirname, '../blogs.json');
 
-const POSTS_FILE = '../blogs.json';
-
-const getAllPosts = async () => {
-    try {
-        const data = await fs.readFile(POSTS_FILE, 'utf8');
-        return JSON.parse(data) || [];
-    } catch (error) {
-        return [];
-    }
+const getAllPosts = () => {
+  const postsData = fs.readFileSync(postsFilePath);
+  return JSON.parse(postsData);
 };
 
-const createPost = async (post) => {
-    const posts = await getAllPosts();
-    posts.push(post);
-    await fs.writeFile(POSTS_FILE, JSON.stringify(posts, null, 2), 'utf8');
+const getPostById = (id) => {
+  const postsData = fs.readFileSync(postsFilePath);
+  const posts = JSON.parse(postsData);
+  return posts.find(post => post.id === id);
 };
 
-// Implement other CRUD functions as needed
+const createPost = (post) => {
+  const postsData = fs.readFileSync(postsFilePath);
+  const posts = JSON.parse(postsData);
+  posts.push(post);
+  fs.writeFileSync(postsFilePath, JSON.stringify(posts, null, 2));
+};
 
-module.exports = { getAllPosts, createPost };
+const updatePost = (id, updatedPost) => {
+  const postsData = fs.readFileSync(postsFilePath);
+  let posts = JSON.parse(postsData);
+  const index = posts.findIndex(post => post.id === id);
+  if (index !== -1) {
+    posts[index] = { ...posts[index], ...updatedPost };
+    fs.writeFileSync(postsFilePath, JSON.stringify(posts, null, 2));
+    return true;
+  }
+  return false;
+};
+
+const deletePost = (id) => {
+  const postsData = fs.readFileSync(postsFilePath);
+  let posts = JSON.parse(postsData);
+  const filteredPosts = posts.filter(post => post.id !== id);
+  fs.writeFileSync(postsFilePath, JSON.stringify(filteredPosts, null, 2));
+};
+
+module.exports = {
+  getAllPosts,
+  getPostById,
+  createPost,
+  updatePost,
+  deletePost
+};
